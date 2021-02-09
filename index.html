@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- Style includes go here -->
+</head>
+
+<body>
+  <h1>Photo Gallery</h1>
+  <form action="gallery.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="FILE_SIZE" value="100000000000000">
+    <table>
+      <tbody>
+      <tr>
+        <td>Photo Name</td>
+        <td><input type="text" name="photoName"></td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td><input type="text" name="photoDate"></td>
+      </tr>
+      <tr>
+        <td>Photographer</td>
+        <td><input type="text" name="photoPhotographer"></td>
+      </tr>
+      <tr>
+        <td>Location</td>
+        <td><input type="text" name="photoLocation"></td>
+      </tr>
+      <tr>
+        <td class="cell-text">Select image to upload: </td>
+        <td><input type="file" name="fileUpload" id="fileUpload"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><input type="submit" name="submit"> </td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>
