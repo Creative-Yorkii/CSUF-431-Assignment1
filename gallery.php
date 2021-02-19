@@ -1,176 +1,159 @@
 <?php
-// Checks if input is valid
-if(isset($_POST["submit"])) { //if a variable is declared when submit is pressed
-    // variables
-    $file = $_FILES['fileUpload'];
-    $fileName = $_FILES['fileUpload']['name'];
-    $fileTmpName = $_FILES['fileUpload']['tmp_name'];
-    $fileError = $_FILES['fileUpload']['error'];
-    $fileType = $_FILES['fileUpload']['type'];// Gets the ext of file
-    $document_root = $_SERVER['DOCUMENT_ROOT'];
+$photoname = $_POST['photoName'];
+$photoDate = $_POST['photoDate'];
+$photoPhotographer = $_POST['photoPhotographer'];
+$location = $_POST['photoLocation'];
+$document_root = $_SERVER['DOCUMENT_ROOT'];
+$file_name = $_FILES["fileToUpload"]["name"];
 
-    if($fileError > 0){ //if there is a error then display error sign
-        echo 'Problem: '.$fileError;
-        exit;
-    }
+$target_dir = "C:/wamp64/www/uploads/";
 
-    // this checks if the file extension is correct
-    if($fileType != 'image/jpeg' && $fileType != 'image/png'){
-        echo 'Problem: file is not a PNG image or a JPEG: ';
-        exit;
-    }
-     $uploaded_file = 'uploads/'.$fileName;
+$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
 
-     if(is_uploaded_file($fileTmpName)){
-         if(!move_uploaded_file($fileTmpName,$uploaded_file)){
-             echo 'Problem: Could not move file to destination directory';
-             exit;
-         }
-    }
-    else {
-        echo 'Problem: Possible file upload attack. Filename: '. $fileName;
-        exit;
-    }
-    ?>
-
-    <?php
-	//Save meta data and name of image file to a text document
-    $fp = fopen("gallery.txt", 'ab');
-
-    if(!$fp){ // if fopen fails exit
-        echo '<p><strong> Your order could not be processed at this time.
-        .Please try again later.</strong></p></body></html>';
-        exit;
-    }
-
-    // all input is trimed and uppercase
-	$getPhotoName = strtoupper(trim($_POST['photoName'])); // input variables
-	$getDateTaken = trim($_POST['photoDate']); // use _POST because its safer
-    $getPhotoGrapher = strtoupper(trim($_POST['photoPhotographer']));
-    $getphotoLocation = strtoupper(trim($_POST['photoLocation']));
-
-    $outputString = $fileName."\t".$getPhotoName."\t".// string to append
-    $getDateTaken."\t".$getPhotoGrapher."\t".$getphotoLocation."\n";
-
-
-	file_put_contents("gallery.txt", $outputString, FILE_APPEND); // append data here
-	//Use rewind() to move the pointer to the start of the file
-    rewind($fp);
-    fclose($fp);
-    ?>
-
-<?php
-    // Read file and add data to array and show pictures.
-    $fp = fopen("gallery.txt", 'rb');
-
-    if(!$fp){
-        echo 'error reading file!';
-        exit;
-    }
-
-    $bigarray = [];
-
-    while(!feof($fp)){
-        $lines = fgets($fp); // gets the whole line
-        if($lines === false) break; // deletes empty line at the end
-        $line = explode("\t",$lines); // explodes the lines into separate varaibles
-        $tmparray = [$line[0],$line[1],$line[2],$line[3],$line[4]]; // pushing to an array
-        array_push($bigarray,$tmparray);
-    }
-
-    fclose($fp); // close file
-}
-
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], "C:/wamp64/www/uploads/" . basename($_FILES["fileToUpload"]["name"]));
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Gallery</title>
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-    <link rel="stylesheet" href="stylesheets/styles.css">
-</head>
-<body>
-    <header>
-        <h1>View All Photos</h1>
-    </header>
-	<!-- Create a form to perform the same thing as index.php and leave it blank-->
-<form action = "gallery.php" method="post" enctype="multipart/form-data">
-    <table>
-        <tr>
-            <td>
-            <div class="form-group">
-                <h2>Sort By:
-                <select id="sortby" class="form-control" name="sort">
-                    <option value="name">Name</option>
-                    <option value="date">Date</option>
-                    <option value="photoPhotographer">Photographer</option>
-                    <option value="location">photoLocation</option>
-                </select>
-                <button type="submit" name="ok">Ok</button>
-                </h2>
-            </div>
-            </td>
-	        <form action = "gallery.php" method = "post" enctype = "multipart/form-data">
-            <td>
-            <!--<input type="button" value="Add another Picture" onClick="javascript:history.go(-1)" />-->
-		    <!-- Go back to the uploads page if the user presses the add another picture button-->
-		    <button type="submit" formaction="$document_root/../index.html"> Add Another Picture</button>
-	        </td>
-	        </form>
-        </tr>
-    </table>
-</form>
-    <div>
+<html>
+    <head>
+        <title>Photo Gallery</title>
+        <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </script>
+    </head>
+        <body>
+        <h1>Photo Gallery</h1>
+          <form>
+            <div class="form-row">
+              <div class="col">
+              <a href="index.html" class="btn btn-primary">Upload</a>
+              </div>
+            <div class = "col">
+            <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span id="selected">Name</span>
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+              <li><a href="#">Name</a></li>
+              <li><a href="#">Date</a></li>
+              <li><a href="#">Location</a></li>
+              <li><a href="#">Photographer</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
         <?php
-        $answer='name';
-//If the user has pressed the ok button for sort....
-if (isset($_POST["ok"])) {
-//...have gallery.txt be read into $bigarray since the form has refreshed...
-	 $fp = fopen("gallery.txt", 'rb');
+$photoString = $photoname . "\t" . $photoDate . "\t" . $photoPhotographer . "\t" . $location . "\t" . $file_name . "\n";
 
-    if(!$fp){
-        echo 'error reading file';
-    }
+@$openItems = fopen("C:/wamp64/www/info.txt", 'ab');
 
-    $answer = $_POST["sort"];
-    $bigarray = [];
+flock($openItems, LOCK_EX);fwrite($openItems, $photoString, strlen($photoString));flock($openItems, LOCK_UN);fclose($openItems);
 
-    while(!feof($fp)){
-        $lines = fgets($fp); // gets the whole line
-        if($lines === false) break; // deletes empty line at the end
-        $line = explode("\t",$lines); // explodes the lines into separate varaibles
-        $tmparray = [$line[0],$line[1],$line[2],$line[3],$line[4]]; // pushing to an array
-        array_push($bigarray,$tmparray);
-    }
-    fclose($fp); // close file
-}
+$items = file("C:/wamp64/www/info.txt");
+$number_of_photos = count($items);
 
-// ...And sort the array according to which "sort" method the user selected in the dropdown
-if($answer === 'name'){
-    array_multisort( array_column( $bigarray, 1),SORT_ASC,  $bigarray);
-} else if($answer === 'date'){
-    array_multisort( array_column( $bigarray, 2),SORT_ASC, SORT_NUMERIC, $bigarray);
-} else if($answer === 'photoPhotographer'){
-    array_multisort( array_column( $bigarray, 3),SORT_ASC, $bigarray);
-} else if($answer === 'location'){
-    array_multisort( array_column( $bigarray, 4),SORT_ASC, $bigarray);
-}
+$photoinfo = array();
+$step = 0;
 
-//Display the gallery by using a for loop and echo data-boxes to the screen
-$len = count($bigarray); // gets bigarray length
-for($row = 0; $row < $len; $row++){
-    echo '<div class="list-content">'; // fileName
-    echo'<img class="picture-content" src="uploads/'.$bigarray[$row][0].'"/ alt="Error on Displaying"></img>';
-    echo'<div class="data-box">'.$bigarray[$row][1].'</div>'; // name
-    echo'<div class="data-box">'.$bigarray[$row][2].'</div>'; // date
-    echo'<div class="data-box">'.$bigarray[$row][3].'</div>'; // photoPhotographer
-    echo'<div class="data-box">'.$bigarray[$row][4].'</div>'; // location
-    echo'</div>';
-}
+for ($i = 0;$i < $number_of_photos;$i++){ foreach (explode("\t", $items[$i]) as $ele) { $photoinfo[$i][$step] = $ele; $step++; } $step = 0;}
+
+$sortedArray = array();
+
+foreach ($photoinfo as $worth){ $photoKeyArray[] = array( 'name' => $worth[0], 'date' => $worth[1], 'photographer' => $worth[2], 'location' => $worth[3], 'img' => $worth[4] );}
+
+$columns = array_column($photoKeyArray, 'name');
+array_multisort($columns, SORT_ASC, $photoKeyArray);
+
 ?>
-</div>
-</main>
-</body>
+
+        <div id = 'container'>
+            <div class = "col-sm-3 col-sm-6" id ="img-thumb">
+                <div class=img-thumbnail >
+                    <img src = "" id ="img" class="img-responsive" width="307" height="240"/>
+                    <figcaption class="figure-caption" id = "name"> </figcaption>
+                    <figcaption class="figure-caption" id ="date"> </figcaption>
+                    <figcaption class="figure-caption" id = "location"> </figcaption>
+                    <figcaption class="figure-caption" id = "photographer"> </figcaption>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+        //https://www.w3schools.com/howto/howto_js_portfolio_filter.asp
+        //https://stackoverflow.com/questions/48711834/filtering-image-gallery
+        //https://stackoverflow.com/questions/46766718/filter-by-image-dont-want-show-all-image/46767033
+        //https://www.geeksforgeeks.org/how-to-add-filter-with-portfolio-gallery-using-html-css-and-javascript/
+
+        // References used for creating the sorting algorithm for the gallery array.
+
+            var photoElement = document.getElementById('container');
+            var unsortedArray =
+            <?php echo json_encode($photoKeyArray, JSON_PRETTY_PRINT) ?>;
+
+            $('.dropdown-menu a').click(function(){
+                $('#selected').text($(this).text());
+                var x = this.text;
+
+               if(x == 'Date'){ unsortedArray.sort(function(a,b){ var photoDate1 = new Date(a.date), photoDate2 = new Date(b.date); return photoDate1- photoDate2; })
+                display();
+               }
+               if(x == 'Name'){ unsortedArray.sort(function(a,b){ var photoName1=a.name.toLowerCase(), photoName2=b.name.toLowerCase(); if(photoName1 < photoName2){return -1;} if(photoName1 > photoName2){return 1;} else {return 0;}})
+                display();
+               }
+               if(x == 'Location'){ unsortedArray.sort(function(a,b){ var photoName1=a.location.toLowerCase(), photoName2=b.location.toLowerCase(); if(photoName1 < photoName2){ return -1;} if(photoName1 > photoName2){return 1;} else {return 0;}})
+                display();
+               }
+               if(x == 'Photographer'){ unsortedArray.sort(function(a,b){ var photoName1=a.photographer.toLowerCase(), photoName2=b.photographer.toLowerCase(); if(photoName1 < photoName2){return -1;} if(photoName1 > photoName2){return 1;} else {return 0;} })
+                display();
+               }
+             });
+
+            var arrayCopy = photoElement.cloneNode(true);
+            for (var i = 0; i < unsortedArray.length; i++) {
+                var gallaryArray = document.querySelectorAll("[id='container']");
+                var arrayCopy = photoElement.cloneNode(true);
+                var arrayLength = Object.keys(unsortedArray[i]).length;
+                for (var j = 0; j < arrayLength; j++) {
+                    var photoValue = unsortedArray[i].img;
+                    var nameValue = unsortedArray[i].name;
+                    var photographerValue = unsortedArray[i].photographer;
+                    var dateValue = unsortedArray[i].date;
+                    var locationValue = unsortedArray[i].location;
+                    gallaryArray[i].querySelector("#name").innerHTML = nameValue;
+                    gallaryArray[i].querySelector("#date").innerHTML = dateValue;
+                    gallaryArray[i].querySelector("#location").innerHTML = locationValue;
+                    gallaryArray[i].querySelector("#photographer").innerHTML = photographerValue;
+                    gallaryArray[i].querySelector("#img").src = 'uploads/' + photoValue;
+                }
+                if(i+1 !== unsortedArray.length){
+                document.body.appendChild(arrayCopy);
+               }
+            }
+            function display(){
+                for (var i = 0; i < unsortedArray.length; i++) {
+                    var gallaryArray = document.querySelectorAll("[id='container']");
+                    var arrayLength = Object.keys(unsortedArray[i]).length;
+                    for (var j = 0; j < arrayLength; j++) {
+                        var photoValue = unsortedArray[i].img;
+                        var nameValue = unsortedArray[i].name;
+                        var photographerValue = unsortedArray[i].photographer;
+                        var dateValue = unsortedArray[i].date;
+                        var locationValue = unsortedArray[i].location;
+                        gallaryArray[i].querySelector("#name").innerHTML = nameValue;
+                        gallaryArray[i].querySelector("#date").innerHTML = dateValue;
+                        gallaryArray[i].querySelector("#location").innerHTML = locationValue;
+                        gallaryArray[i].querySelector("#photographer").innerHTML = photographerValue;
+                        gallaryArray[i].querySelector("#img").src = 'uploads/' + photoValue;
+                      }
+                  }
+            }
+        </script>
+        </body>
 </html>
